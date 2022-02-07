@@ -2,12 +2,12 @@
     "name": "指名料なし",
     "description": "料金なくでもスタイリストを予約できるように!",
     "version": "1.0",
-    "manifest_version": 3,
+    "manifest_version": 2,
     "background": {
         "service_worker": "background.js"
     },
-    "permissions": ["storage", "activeTab", "scripting"],
-    "action": {
+    "permissions": ["storage", "tabs", "https://beauty.hotpepper.jp/CSP/bt/reserve/schedule*"],
+    "browser_action": {
         "default_popup": "popup.html",
         "default_icon": {
             "16": "/images/get_started16.png",
@@ -26,8 +26,9 @@
     "content_scripts": [
         {
             "matches": ["https://beauty.hotpepper.jp/CSP/bt/reserve/*"],
+            "exclude_matches": ["https://beauty.hotpepper.jp/CSP/bt/reserve/schedule*"],
             "js": ["content.js"],
-            "run_at": "document_idle"
+            "run_at": "document_end"
         }
     ]
 }

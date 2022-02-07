@@ -23,11 +23,8 @@ function parseStylist() {
 }
 
 // parse stylist schedule
-function parseScheduleByStylistId(stylistId) {
-    // Open a new page
-    // wait until document is loaded
-    
-    // Get all open elemetnts
+function parseScheduleByStylistId(storeId, stylistId) {
+    // Parse data of the current tab
     let openElements = document.querySelectorAll('.openCell > .icnOpen');
     let schedule = {};
     schedule[stylistId] = {};
@@ -43,14 +40,31 @@ function parseScheduleByStylistId(stylistId) {
     return schedule;
 }
 
-
 parseStylist();
+
+// Send message to background.js
 let stylistList = {};
-chrome.storage.local.get(['store'], function(data) {
+chrome.storage.local.get(['store'], function (data) {
+    let storeId = data.store.id;
     stylistList = data.store.stylists;
-    for(const [stylistId, name] of Object.entries(stylistList)) {
+    for (const [stylistId, name] of Object.entries(stylistList)) {
         console.log(stylistId, name);
-        parseScheduleByStylistId(stylistId);
+        chrome.runtime.sendMessage({ action: 'getSchedule', storeId: storeId, stylistId: stylistId });
     }
 });
 
+chrome.runtime.onMessage.addListener((request, sender) => {
+    console('start parse tab')
+    if (request.action === 'parseTab') {
+       parseTab(request.tabId);
+    }
+});
+
+async function parseTab(tabId) {
+    try {
+        let tabInfo = await browser.tabs.get(tabId);
+        console.log(tabInfo);
+    } catch(error) {
+        console.log(error);
+    }
+}
